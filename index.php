@@ -82,35 +82,37 @@ if (isset($_POST['login'])) {
     <script src="vendor-front/jquery-easing/jquery.easing.min.js"></script>
 
     <script type="text/javascript" src="vendor-front/parsley/dist/parsley.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
 
-    <div class="container">
+    <div id="app" class="container">
         <br />
         <br />
+        {{ message }}
         <h1 class="text-center">Chat App using Ratchet</h1>
         <div class="row justify-content-md-center mt-5">
 
             <div class="col-md-4">
                 <?php
-               if (isset($_SESSION['success_message'])) {
-                   echo '
+                if (isset($_SESSION['success_message'])) {
+                    echo '
                     <div class="alert alert-success">
                     ' . $_SESSION["success_message"] . '
                     </div>
                     ';
-                   unset($_SESSION['success_message']);
-               }
+                    unset($_SESSION['success_message']);
+                }
 
-               if ($error != '') {
-                   echo '
+                if ($error != '') {
+                    echo '
                     <div class="alert alert-danger">
                     ' . $error . '
                     </div>
                     ';
-               }
-               ?>
+                }
+                ?>
                 <div class="card">
                     <div class="card-header">Login</div>
                     <div class="card-body">
@@ -138,6 +140,17 @@ if (isset($_POST['login'])) {
 </body>
 
 </html>
+
+<script>
+    const { createApp } = Vue
+    createApp({
+        data() {
+            return {
+                message: 'Hello Vue!'
+            }
+        }
+    }).mount('#app')
+</script>
 
 <script>
 

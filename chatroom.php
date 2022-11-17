@@ -39,6 +39,7 @@ $user_data = $user_object->get_user_all_data();
 	<script src="vendor-front/jquery-easing/jquery.easing.min.js"></script>
 
 	<script type="text/javascript" src="vendor-front/parsley/dist/parsley.min.js"></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 	<style type="text/css">
 		html,
 		body {
@@ -81,7 +82,8 @@ $user_data = $user_object->get_user_all_data();
 </head>
 
 <body>
-	<div class="container">
+	<div class="container" id="app">
+
 		<br />
 		<h3 class="text-center">Realtime Chat Room</h3>
 		<br />
@@ -101,18 +103,18 @@ $user_data = $user_object->get_user_all_data();
 					</div>
 					<div class="card-body" id="messages_area">
 						<?php
-                    foreach ($chat_data as $chat) {
-	                    if (isset($_SESSION['user_data'][$chat['userid']])) {
-		                    $from = 'Me';
-		                    $row_class = 'row justify-content-end';
-		                    $background_class = 'text-dark alert-light';
-	                    } else {
-		                    $from = $chat['user_name'];
-		                    $row_class = 'row justify-content-start';
-		                    $background_class = 'alert-success';
-	                    }
+                        foreach ($chat_data as $chat) {
+	                        if (isset($_SESSION['user_data'][$chat['userid']])) {
+		                        $from = 'Me';
+		                        $row_class = 'row justify-content-end';
+		                        $background_class = 'text-dark alert-light';
+	                        } else {
+		                        $from = $chat['user_name'];
+		                        $row_class = 'row justify-content-start';
+		                        $background_class = 'alert-success';
+	                        }
 
-	                    echo '
+	                        echo '
 						<div class="' . $row_class . '">
 							<div class="col-sm-10">
 								<div class="shadow-sm alert ' . $background_class . '">
@@ -125,8 +127,8 @@ $user_data = $user_object->get_user_all_data();
 							</div>
 						</div>
 						';
-                    }
-                    ?>
+                        }
+                        ?>
 					</div>
 				</div>
 
@@ -136,7 +138,7 @@ $user_data = $user_object->get_user_all_data();
 							placeholder="Type Message Here" data-parsley-maxlength="1000"
 							data-parsley-pattern="/^[a-zA-Z0-9\s]+$/" required></textarea>
 						<div class="input-group-append">
-							<button type="submit" name="send" id="send" class="btn btn-primary"><i
+							<button type="submit" @click="send()" name="send" id="send" class="btn btn-primary"><i
 									class="fa fa-paper-plane"></i></button>
 						</div>
 					</div>
@@ -159,7 +161,7 @@ $user_data = $user_object->get_user_all_data();
 						<?php echo $value['name']; ?>
 					</h3>
 					<a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a>
-					<input type="button" class="btn btn-primary mt-2 mb-2" name="logout" id="logout" value="Logout" />
+					<input type="button" class="btn btn-primary mt-2 mb-2" name="logout" id="logout" value="Logout" @click="logout" />
 				</div>
 				<?php
                 }
@@ -170,27 +172,27 @@ $user_data = $user_object->get_user_all_data();
 					<div class="card-body" id="user_list">
 						<div class="list-group list-group-flush">
 							<?php
-                        if (count($user_data) > 0) {
-	                        foreach ($user_data as $key => $user) {
-		                        $icon = '<i class="fa fa-circle text-danger"></i>';
+                            if (count($user_data) > 0) {
+	                            foreach ($user_data as $key => $user) {
+		                            $icon = '<i class="fa fa-circle text-danger"></i>';
 
-		                        if ($user['user_login_status'] == 'Login') {
-			                        $icon = '<i class="fa fa-circle text-success"></i>';
-		                        }
+		                            if ($user['user_login_status'] == 'Login') {
+			                            $icon = '<i class="fa fa-circle text-success"></i>';
+		                            }
 
-		                        if ($user['user_id'] != $login_user_id) {
-			                        echo '
+		                            if ($user['user_id'] != $login_user_id) {
+			                            echo '
 									<a class="list-group-item list-group-item-action">
 										<img src="' . $user["user_profile"] . '" class="img-fluid rounded-circle img-thumbnail" width="50" />
 										<span class="ml-1"><strong>' . $user["user_name"] . '</strong></span>
 										<span class="mt-2 float-right">' . $icon . '</span>
 									</a>
 									';
-		                        }
+		                            }
 
-	                        }
-                        }
-                        ?>
+	                            }
+                            }
+                            ?>
 						</div>
 					</div>
 				</div>
@@ -199,87 +201,168 @@ $user_data = $user_object->get_user_all_data();
 		</div>
 	</div>
 </body>
+
+<script>
+	var conn = new WebSocket('ws://localhost:8080');
+	const { createApp } = Vue
+	createApp({
+		data() {
+			return {
+				message: 'Hello Vue!'
+			}
+		},
+		mounted() {
+			conn.onopen = function (e) {
+				console.log("Connection established!");
+			};
+
+			conn.onmessage = function (e) {
+				console.log(e.data);
+
+				var data = JSON.parse(e.data);
+
+				var row_class = '';
+
+				var background_class = '';
+
+				if (data.from == 'Me') {
+					row_class = 'row justify-content-end';
+					background_class = 'text-dark alert-light';
+				}
+				else {
+					row_class = 'row justify-content-start';
+					background_class = 'alert-success';
+				}
+
+				var html_data = "<div class='" + row_class + "'><div class='col-sm-10'><div class='shadow-sm alert " + background_class + "'><b>" + data.from + " - </b>" + data.msg + "<br /><div class='text-right'><small><i>" + data.dt + "</i></small></div></div></div></div>";
+
+				$('#messages_area').append(html_data);
+
+				$("#chat_message").val("");
+			};
+		},
+		methods: {
+			send() {
+				if ($('#chat_form').parsley().isValid()) {
+
+					var user_id = $('#login_user_id').val();
+
+					var message = $('#chat_message').val();
+
+					var data = {
+						userId: user_id,
+						msg: message,
+						command: 'group',
+					};
+
+					conn.send(JSON.stringify(data));
+
+					$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
+				}
+			},
+
+			logout() {
+				user_id = $('#login_user_id').val();
+
+				$.ajax({
+					url: "action.php",
+					method: "POST",
+					data: { user_id: user_id, action: 'leave' },
+					success: function (data) {
+						var response = JSON.parse(data);
+
+						if (response.status == 1) {
+							conn.close();
+							location = 'index.php';
+						}
+					}
+				})
+			}
+		},
+	}).mount('#app')
+</script>
+
 <script type="text/javascript">
 
 	$(document).ready(function () {
 
-		var conn = new WebSocket('ws://localhost:8080');
-		conn.onopen = function (e) {
-			console.log("Connection established!");
-		};
+		// var conn = new WebSocket('ws://localhost:8080');
+		// conn.onopen = function (e) {
+		// 	console.log("Connection established!");
+		// };
 
-		conn.onmessage = function (e) {
-			console.log(e.data);
+		// conn.onmessage = function (e) {
+		// 	console.log(e.data);
 
-			var data = JSON.parse(e.data);
+		// 	var data = JSON.parse(e.data);
 
-			var row_class = '';
+		// 	var row_class = '';
 
-			var background_class = '';
+		// 	var background_class = '';
 
-			if (data.from == 'Me') {
-				row_class = 'row justify-content-end';
-				background_class = 'text-dark alert-light';
-			}
-			else {
-				row_class = 'row justify-content-start';
-				background_class = 'alert-success';
-			}
+		// 	if (data.from == 'Me') {
+		// 		row_class = 'row justify-content-end';
+		// 		background_class = 'text-dark alert-light';
+		// 	}
+		// 	else {
+		// 		row_class = 'row justify-content-start';
+		// 		background_class = 'alert-success';
+		// 	}
 
-			var html_data = "<div class='" + row_class + "'><div class='col-sm-10'><div class='shadow-sm alert " + background_class + "'><b>" + data.from + " - </b>" + data.msg + "<br /><div class='text-right'><small><i>" + data.dt + "</i></small></div></div></div></div>";
+		// 	var html_data = "<div class='" + row_class + "'><div class='col-sm-10'><div class='shadow-sm alert " + background_class + "'><b>" + data.from + " - </b>" + data.msg + "<br /><div class='text-right'><small><i>" + data.dt + "</i></small></div></div></div></div>";
 
-			$('#messages_area').append(html_data);
+		// 	$('#messages_area').append(html_data);
 
-			$("#chat_message").val("");
-		};
+		// 	$("#chat_message").val("");
+		// };
 
 		$('#chat_form').parsley();
 
 		$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
 
-		$('#chat_form').on('submit', function (event) {
+		// $('#chat_form').on('submit', function (event) {
 
-			event.preventDefault();
+			// event.preventDefault();
 
-			if ($('#chat_form').parsley().isValid()) {
+			// if ($('#chat_form').parsley().isValid()) {
 
-				var user_id = $('#login_user_id').val();
+			// 	var user_id = $('#login_user_id').val();
 
-				var message = $('#chat_message').val();
+			// 	var message = $('#chat_message').val();
 
-				var data = {
-					userId: user_id,
-					msg: message,
-					command: 'group',
-				};
+			// 	var data = {
+			// 		userId: user_id,
+			// 		msg: message,
+			// 		command: 'group',
+			// 	};
 
-				conn.send(JSON.stringify(data));
+			// 	conn.send(JSON.stringify(data));
 
-				$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
+			// 	$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
 
-			}
+			// }
 
-		});
+		// });
 
-		$('#logout').click(function () {
+		// $('#logout').click(function () {
 
-			user_id = $('#login_user_id').val();
+			// user_id = $('#login_user_id').val();
 
-			$.ajax({
-				url: "action.php",
-				method: "POST",
-				data: { user_id: user_id, action: 'leave' },
-				success: function (data) {
-					var response = JSON.parse(data);
+			// $.ajax({
+			// 	url: "action.php",
+			// 	method: "POST",
+			// 	data: { user_id: user_id, action: 'leave' },
+			// 	success: function (data) {
+			// 		var response = JSON.parse(data);
 
-					if (response.status == 1) {
-						conn.close();
-						location = 'index.php';
-					}
-				}
-			})
+			// 		if (response.status == 1) {
+			// 			conn.close();
+			// 			location = 'index.php';
+			// 		}
+			// 	}
+			// })
 
-		});
+		// });
 
 	});
 
