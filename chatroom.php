@@ -249,7 +249,8 @@ $user_data = $user_object->get_user_all_data();
 
 				var data = {
 					userId: user_id,
-					msg: message
+					msg: message,
+					command: 'group',
 				};
 
 				conn.send(JSON.stringify(data));
