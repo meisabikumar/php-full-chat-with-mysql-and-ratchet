@@ -132,13 +132,13 @@ $user_data = $user_object->get_user_all_data();
 					</div>
 				</div>
 
-				<form method="post" id="chat_form" data-parsley-errors-container="#validation_error">
+				<form  id="chat_form" data-parsley-errors-container="#validation_error">
 					<div class="input-group mb-3">
 						<textarea class="form-control" id="chat_message" name="chat_message"
 							placeholder="Type Message Here" data-parsley-maxlength="1000"
 							data-parsley-pattern="/^[a-zA-Z0-9\s]+$/" required></textarea>
 						<div class="input-group-append">
-							<button type="submit" @click="send()" name="send" id="send" class="btn btn-primary"><i
+							<button type="button" @click="send()" name="send" id="send" class="btn btn-primary"><i
 									class="fa fa-paper-plane"></i></button>
 						</div>
 					</div>
@@ -161,7 +161,8 @@ $user_data = $user_object->get_user_all_data();
 						<?php echo $value['name']; ?>
 					</h3>
 					<a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a>
-					<input type="button" class="btn btn-primary mt-2 mb-2" name="logout" id="logout" value="Logout" @click="logout" />
+					<input type="button" class="btn btn-primary mt-2 mb-2" name="logout" id="logout" value="Logout"
+						@click="logout()" />
 				</div>
 				<?php
                 }
@@ -212,6 +213,9 @@ $user_data = $user_object->get_user_all_data();
 			}
 		},
 		mounted() {
+
+			this.onInit()
+
 			conn.onopen = function (e) {
 				console.log("Connection established!");
 			};
@@ -277,6 +281,12 @@ $user_data = $user_object->get_user_all_data();
 						}
 					}
 				})
+			},
+
+			onInit() {
+				$('#chat_form').parsley();
+
+				$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
 			}
 		},
 	}).mount('#app')
@@ -316,51 +326,51 @@ $user_data = $user_object->get_user_all_data();
 		// 	$("#chat_message").val("");
 		// };
 
-		$('#chat_form').parsley();
+		// $('#chat_form').parsley();
 
-		$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
+		// $('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
 
 		// $('#chat_form').on('submit', function (event) {
 
-			// event.preventDefault();
+		// event.preventDefault();
 
-			// if ($('#chat_form').parsley().isValid()) {
+		// if ($('#chat_form').parsley().isValid()) {
 
-			// 	var user_id = $('#login_user_id').val();
+		// 	var user_id = $('#login_user_id').val();
 
-			// 	var message = $('#chat_message').val();
+		// 	var message = $('#chat_message').val();
 
-			// 	var data = {
-			// 		userId: user_id,
-			// 		msg: message,
-			// 		command: 'group',
-			// 	};
+		// 	var data = {
+		// 		userId: user_id,
+		// 		msg: message,
+		// 		command: 'group',
+		// 	};
 
-			// 	conn.send(JSON.stringify(data));
+		// 	conn.send(JSON.stringify(data));
 
-			// 	$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
+		// 	$('#messages_area').scrollTop($('#messages_area')[0].scrollHeight);
 
-			// }
+		// }
 
 		// });
 
 		// $('#logout').click(function () {
 
-			// user_id = $('#login_user_id').val();
+		// user_id = $('#login_user_id').val();
 
-			// $.ajax({
-			// 	url: "action.php",
-			// 	method: "POST",
-			// 	data: { user_id: user_id, action: 'leave' },
-			// 	success: function (data) {
-			// 		var response = JSON.parse(data);
+		// $.ajax({
+		// 	url: "action.php",
+		// 	method: "POST",
+		// 	data: { user_id: user_id, action: 'leave' },
+		// 	success: function (data) {
+		// 		var response = JSON.parse(data);
 
-			// 		if (response.status == 1) {
-			// 			conn.close();
-			// 			location = 'index.php';
-			// 		}
-			// 	}
-			// })
+		// 		if (response.status == 1) {
+		// 			conn.close();
+		// 			location = 'index.php';
+		// 		}
+		// 	}
+		// })
 
 		// });
 
