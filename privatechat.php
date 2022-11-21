@@ -106,7 +106,7 @@ require('database/ChatRooms.php');
 					<h3 class="mt-2">
 						<?php echo $value['name']; ?>
 					</h3>
-					<a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a>
+					<!-- <a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a> -->
 					<input type="button" class="btn btn-primary mt-2 mb-2" id="logout" @click="logout()" name="logout"
 						value="Logout" />
 				</div>

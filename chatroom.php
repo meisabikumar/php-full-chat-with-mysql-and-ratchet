@@ -160,7 +160,7 @@ $user_data = $user_object->get_user_all_data();
 					<h3 class="mt-2">
 						<?php echo $value['name']; ?>
 					</h3>
-					<a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a>
+					<!-- <a href="profile.php" class="btn btn-secondary mt-2 mb-2">Edit</a> -->
 					<input type="button" class="btn btn-primary mt-2 mb-2" name="logout" id="logout" value="Logout"
 						@click="logout()" />
 				</div>
