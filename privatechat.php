@@ -139,7 +139,7 @@ require('database/ChatRooms.php');
 		                    }
 
 		                    echo "
-							<a class='list-group-item list-group-item-action select_user' @click='select_user(" . $user['user_id'] . ")' style='cursor:pointer' data-userid = '" . $user['user_id'] . "'  id='select_userid_" . $user['user_id'] . "'>
+							<a class='list-group-item list-group-item-action select_user' @click='select_user(" . $user['user_id'] . ")' style='cursor:pointer' data-userid = '" . $user['user_id'] . "' id='select_userid_" . $user['user_id'] . "'>
 								<img src='" . $user["user_profile"] . "' class='img-fluid rounded-circle img-thumbnail' width='50' />
 								<span class='ml-1'>
 									<strong>
@@ -161,7 +161,7 @@ require('database/ChatRooms.php');
 				<h3 class="text-center">Realtime Private Chat</h3>
 				<hr />
 				<br />
-				<div id="chat_area" v-if="chat_area">
+				<div id="chat_area" v-show="is_chat_area_visible">
 					<div class="card">
 						<div class="card-header">
 							<div class="row">
@@ -205,26 +205,27 @@ require('database/ChatRooms.php');
 
 <script>
 	var conn = new WebSocket('ws://localhost:8080?token=<?php echo $token; ?>');
+	var receiver_userid = '';
+
 	const { createApp } = Vue
 	createApp({
 		data() {
 			return {
 				message: 'Hello Vue!',
-				chat_area: false
+				is_chat_area_visible: false
 			}
 		},
 		mounted() {
 
 			// this.onInit()
 
-			var receiver_userid = '';
-
-
 			conn.onopen = function (e) {
 				console.log("Private Connection established!");
 			};
 
 			conn.onmessage = function (event) {
+				console.log(event.data);
+
 				var data = JSON.parse(event.data);
 
 				if (data.status_type == 'Online') {
@@ -290,9 +291,13 @@ require('database/ChatRooms.php');
 		methods: {
 
 			make_chat_area(user_name) {
-				this.chat_area = true;
-				$('#chat_form').parsley();
+
+				// var html = ``;
+
 				$('#chat_user_name').html(user_name);
+				$('#chat_form').parsley();
+				this.is_chat_area_visible = true;
+				console.log('selected user', user_name)
 			},
 
 			select_user(userid) {
@@ -305,8 +310,7 @@ require('database/ChatRooms.php');
 
 				$('.select_user.active').removeClass('active');
 
-				$('#select_userid_' + userid).addClass('active');
-				// event.target.classList.toggle('active')
+				$('#select_userid_' + receiver_userid).addClass('active');
 
 				this.make_chat_area(receiver_user_name);
 
@@ -367,13 +371,10 @@ require('database/ChatRooms.php');
 			},
 			close_chat_area() {
 				// $('#chat_area').html('');
-				this.chat_area = false
 				$('#chat_user_name').html('');
-
 				$('.select_user.active').removeClass('active');
-
 				$('#is_active_chat').val('No');
-
+				this.is_chat_area_visible = false;
 				receiver_userid = '';
 			},
 
@@ -418,3 +419,7 @@ require('database/ChatRooms.php');
 		},
 	}).mount('#app')
 </script>
+
+
+
+</html>
